@@ -1,10 +1,9 @@
-
+from django.shortcuts import get_object_or_404
 import random
 from django.shortcuts import render, redirect
-from django.contrib.auth.decorators import login_required
-from django.contrib.auth import login
-from item.models import Pokemon
-from item.models import Category, Pokemon, Type
+from .models import UserProfile
+
+from item.models import Pokemon, Type
 
 from .forms import SignupForm
 
@@ -29,6 +28,14 @@ def signup(request):
         if form.is_valid():
             user = form.save()
             
+            # Check if the UserProfile already exists
+            user_profile, created = UserProfile.objects.get_or_create(user=user)
+            
+            if created:
+                # Only grant Pokepeso if it's a new profile
+                user_profile.pokepeso = 1000
+                user_profile.save()
+
             # Get original Pokémon
             original_pokemons = Pokemon.objects.filter(is_original=True)
 
@@ -36,7 +43,6 @@ def signup(request):
             selected_pokemons = random.sample(list(original_pokemons), 5)
 
             for original_pokemon in selected_pokemons:
-                # Create a new Pokémon for the user
                 new_pokemon = Pokemon.objects.create(
                     owner=user,
                     name=original_pokemon.name,
@@ -44,14 +50,13 @@ def signup(request):
                     level=1,
                     current_experience=0,
                     is_tradeable=original_pokemon.is_tradeable,
-                    is_original=False,  # Mark as non-original
-                    image=original_pokemon.image,  # Copy the image from original Pokémon
-                    category=original_pokemon.category,  # Set the category
-                    region=original_pokemon.region,  # Copy region
-                    generation=original_pokemon.generation  # Copy generation
+                    is_original=False,
+                    image=original_pokemon.image,
+                    category=original_pokemon.category,
+                    region=original_pokemon.region,
+                    generation=original_pokemon.generation
                 )
 
-                # Now you can set the types after saving
                 new_pokemon.types.set(original_pokemon.types.all())
 
             return redirect('/login/')

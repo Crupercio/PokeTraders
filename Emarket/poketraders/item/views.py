@@ -1,8 +1,9 @@
 from django.shortcuts import render, get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
 from .models import Pokemon, Type
 from .forms import NewPokemonForm, EditPokemonPriceForm
+from django.contrib import messages
 # Create your views here.
 
 def pokemons(request):
@@ -31,7 +32,7 @@ def pokemons(request):
 def detail(request, pk):
     pokemon = get_object_or_404(Pokemon, pk=pk)
     
-    related_pokemons = Pokemon.objects.filter(types__in=pokemon.types.all(), is_sold=False).exclude(pk=pk).distinct()[:6]
+    related_pokemons = Pokemon.objects.filter(types__in=pokemon.types.all(), is_tradeable=True, is_sold=False).exclude(pk=pk).distinct()[:6]
 
     return render(request, 'pokemon/detail.html',{
         'pokemon': pokemon,
@@ -39,6 +40,7 @@ def detail(request, pk):
     })
 
 @login_required
+@user_passes_test(lambda u: u.is_staff)  # This decorator restricts access to admin users
 def new(request):
     if request.method == 'POST':
         form = NewPokemonForm(request.POST, request.FILES)
@@ -83,3 +85,39 @@ def edit(request, pk):
         'form': form,
         'title': 'Edit pokemons',
     })
+
+@login_required
+def buy_pokemon(request, pk):
+    pokemon = get_object_or_404(Pokemon, pk=pk)
+
+    # Check if the Pokémon is tradeable and has a price
+    if pokemon.price is None or not pokemon.is_tradeable:
+        messages.error(request, "This Pokémon is not available for purchase.")
+        return redirect('item:detail', pk=pokemon.id)
+
+    # Check if the user has enough Pokepesos
+    if request.user.userprofile.pokepeso >= pokemon.price:
+        # Deduct Pokepesos from buyer
+        request.user.userprofile.pokepeso -= pokemon.price
+        request.user.userprofile.save()
+
+        # Transfer ownership
+        pokemon.owner = request.user
+        pokemon.is_tradeable = False  # Mark as not tradeable after purchase
+        pokemon.save()
+
+        # Award experience points to the buyer
+        experience_gained = 10  # Fixed 10 XP for every purchase
+        request.user.userprofile.add_experience(experience_gained)
+
+        # Award experience points to the Pokémon
+        pokemon.add_experience(50)  # Fixed experience for Pokémon
+
+        messages.success(request, f"You have successfully bought {pokemon.name} and gained {experience_gained} experience points!")
+        return redirect('dashboard:index')
+    else:
+        messages.error(request, "You do not have enough Pokepesos to buy this Pokémon.")
+        return redirect('item:detail', pk=pokemon.id)
+
+
+

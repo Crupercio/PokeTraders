@@ -1,4 +1,4 @@
-{% extends 'core/base.html'%}
+{% extends 'core/base.html' %}
 
 {% block title %} {{ pokemon.name }} {% endblock %}
 
@@ -9,11 +9,12 @@
     </div>
     <div class="col-span-2 p-6 bg-gray-100 rounded-xl">
         <h1 class="mb-6 text-3xl">{{ pokemon.name }}</h1>
-        <p class="text-gray-500"><strong>Price: </strong>{{ pokemon.price}}</p>
-        <p class="text-gray-500"><strong>Owner: </strong>{{ pokemon.owner}}</p>
+        <p class="text-gray-500"><strong>Price: </strong>{{ pokemon.price }}</p>
+        <p class="text-gray-500"><strong>Owner: </strong>{{ pokemon.owner }}</p>
+        <p class="text-gray-500"><strong>Level: </strong>{{ pokemon.level }}</p>
+        <p class="text-gray-500"><strong>Current Experience: </strong>{{ pokemon.current_experience }}</p>
         <br>
         {% if pokemon.description %}
-
             <p class="text-gray-700">
                 <strong class="text-gray-500">Description:</strong><br>
                 {{ pokemon.description }}
@@ -24,35 +25,28 @@
                 <p>This is your item!</p>
                 <a href="{% url 'item:edit' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Edit</a>
                 <a href="{% url 'item:delete' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-red-500 text-white rounded-xl hover:bg-red-700">Delete</a>
-                
             </div>
         {% else %}
-        <a href="#" class="inline-block mt-6 px-6 py-3 font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Conctact seller</a>
-        
+            <a href="{% url 'item:buy' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Buy</a>
         {% endif %}
-
-        
-
     </div>
 </div>
 
 <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
     <h2 class="mb-12 text-2xl text-center">Related Pokemons</h2>
     <div class="grid grid-cols-6 gap-3">
-        {% for pokemon in related_pokemons %}
+        {% for related_pokemon in related_pokemons %}
         <div class="border border-4 border-teal-600"> 
-            <a href="{% url 'item:detail' pokemon.id %}">
+            <a href="{% url 'item:detail' related_pokemon.id %}">
                 <div>
-                    <img src="{{ pokemon.image.url }}" class="rounded-t-xl">
+                    <img src="{{ related_pokemon.image.url }}" class="rounded-t-xl">
                 </div>
                 <div class="p-6 bg-white rounded-b-xl">
-                    <h2 class="text-2xl">{{ pokemon.name }}</h2>
-                    <p class="text-gray-500">Price: {{ pokemon.price}}</p>
-
+                    <h2 class="text-2xl">{{ related_pokemon.name }}</h2>
+                    <p class="text-gray-500">Price: {{ related_pokemon.price }}</p>
                 </div>
             </a>
         </div>
-
         {% endfor %}
     </div>
 </div>
