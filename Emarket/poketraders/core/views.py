@@ -3,7 +3,7 @@ import random
 from django.shortcuts import render, redirect
 from .models import UserProfile
 
-from item.models import Pokemon, Type
+from item.models import Pokemon, Type, PokemonOfUser
 
 from .forms import SignupForm
 
@@ -11,7 +11,7 @@ from .forms import SignupForm
 # Create your views here.
 
 def index(request):
-    pokemons = Pokemon.objects.filter(is_sold=False, is_tradeable=True)[0:150]
+    pokemons = PokemonOfUser.objects.filter(is_sold=False, is_tradeable=True)[0:150]
     types = Type.objects.all()
     return render(request, 'core/index.html', {
         'types': types,
@@ -43,7 +43,7 @@ def signup(request):
             selected_pokemons = random.sample(list(original_pokemons), 5)
 
             for original_pokemon in selected_pokemons:
-                new_pokemon = Pokemon.objects.create(
+                new_pokemon = PokemonOfUser.objects.create(
                     owner=user,
                     name=original_pokemon.name,
                     description=original_pokemon.description,

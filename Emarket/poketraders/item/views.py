@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.db.models import Q
-from .models import Pokemon, Type
+from .models import Pokemon, Type, PokemonOfUser
 from .forms import NewPokemonForm, EditPokemonPriceForm
 from django.contrib import messages
 # Create your views here.
@@ -10,7 +10,7 @@ def pokemons(request):
     query = request.GET.get('query','')
     
     selected_types = request.GET.getlist('types')  # Get the list of selected types
-    pokemons = Pokemon.objects.filter(is_sold=False, is_tradeable=True)
+    pokemons = PokemonOfUser.objects.filter(is_sold=False, is_tradeable=True)
 
     if query:
         pokemons = pokemons.filter(Q(name__icontains=query) | Q(description__icontains=query))
@@ -30,9 +30,9 @@ def pokemons(request):
     })
 
 def detail(request, pk):
-    pokemon = get_object_or_404(Pokemon, pk=pk)
+    pokemon = get_object_or_404(PokemonOfUser, pk=pk)
     
-    related_pokemons = Pokemon.objects.filter(types__in=pokemon.types.all(), is_tradeable=True, is_sold=False).exclude(pk=pk).distinct()[:6]
+    related_pokemons = PokemonOfUser.objects.filter(types__in=pokemon.types.all(), is_tradeable=True, is_sold=False).exclude(pk=pk).distinct()[:6]
 
     return render(request, 'pokemon/detail.html',{
         'pokemon': pokemon,
@@ -51,7 +51,7 @@ def new(request):
             pokemon.save()
             form.save_m2m()  # This will save the many-to-many relationships (like types)
 
-            return redirect('item:detail',pk=pokemon.id)
+            return redirect('core:index')
     else:
         form = NewPokemonForm()
 
@@ -62,14 +62,14 @@ def new(request):
 
 @login_required
 def delete(request, pk):
-    pokemon = get_object_or_404(Pokemon, pk=pk, owner=request.user)
+    pokemon = get_object_or_404(PokemonOfUser, pk=pk, owner=request.user)
     pokemon.delete()
 
     return redirect('dashboard:index')
 
 @login_required
 def edit(request, pk):
-    pokemon = get_object_or_404(Pokemon, pk=pk, owner=request.user)
+    pokemon = get_object_or_404(PokemonOfUser, pk=pk, owner=request.user)
     if request.method == 'POST':
         form = EditPokemonPriceForm(request.POST, request.FILES, instance=pokemon)
 
@@ -88,7 +88,7 @@ def edit(request, pk):
 
 @login_required
 def buy_pokemon(request, pk):
-    pokemon = get_object_or_404(Pokemon, pk=pk)
+    pokemon = get_object_or_404(PokemonOfUser, pk=pk)
 
     # Check if the Pokémon is tradeable and has a price
     if pokemon.price is None or not pokemon.is_tradeable:
