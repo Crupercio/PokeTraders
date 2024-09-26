@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from core.models import UserProfile
 
 
 class Type(models.Model):
@@ -90,7 +91,7 @@ class PokemonOfUser(models.Model):
     description = models.TextField(blank=True, null=True)
     level = models.IntegerField(default=1)
     current_experience = models.IntegerField(default=0)
-    owner = models.ForeignKey(User, related_name='user_pokemons', on_delete=models.CASCADE)
+    owner = models.ForeignKey(UserProfile, related_name='user_pokemons', on_delete=models.CASCADE)
     is_tradeable = models.BooleanField(default=True)
     types = models.ManyToManyField(Type, related_name='user_pokemons', blank=True)
     region = models.ForeignKey(Region, related_name='user_pokemons', on_delete=models.SET_NULL, null=True, blank=True)

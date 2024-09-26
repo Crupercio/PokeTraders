@@ -47,7 +47,7 @@ def signup(request):
 
             for original_pokemon in selected_pokemons:
                 new_pokemon = PokemonOfUser.objects.create(
-                    owner=user,
+                    owner=user_profile,
                     name=original_pokemon.name,
                     description=original_pokemon.description,
                     level=1,

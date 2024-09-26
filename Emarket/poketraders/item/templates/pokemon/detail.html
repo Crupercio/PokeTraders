@@ -31,23 +31,34 @@
                 {{ pokemon.description }}
             </p>
         {% endif %}
-        {% if request.user == pokemon.owner %}
+
+        <p>User Profile: {{ user_profile }}</p>
+        <p>Pokemon Owner: {{ pokemon.owner }}</p>
+        <p>User Authenticated: {{ request.user.is_authenticated }}</p>
+        {% if user_profile %}
+            {% if user_profile == pokemon.owner %}
             <div class="mt-6 p-6 bg-white rounded-xl">
                 <p>This is your item!</p>
                 <a href="{% url 'item:edit' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Edit</a>
                 <a href="{% url 'item:delete' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-red-500 text-white rounded-xl hover:bg-red-700">Delete</a>
-                <!--<a href="{% url 'item:upgrade' pokemon.id %}" class="nline-block mt-6 px-6 py-3 font-semibold bg-yellow-500 text-white rounded-xl hover:bg-yellow-700" 
-        {% if not can_upgrade %}opacity-50 cursor-not-allowed{% endif %}" 
-        {% if not can_upgrade %}disabled{% endif %}>
-        Upgrade
-            </a>-->
-
-                
-                
+                <a href="{% url 'item:upgrade' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-yellow-500 text-white rounded-xl hover:bg-yellow-700" 
+                {% if not can_upgrade %}opacity-50 cursor-not-allowed{% endif %} 
+                {% if not can_upgrade %}disabled{% endif %}>
+                Upgrade
+                </a>                
             </div>
-        {% else %}
+            {% else %}
             <a href="{% url 'item:buy' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Buy</a>
+            {% endif %}
+        {% else %}
+        
+        <a href="{% url 'core:signup' %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-pink-500 text-white rounded-xl hover:bg-pink-700">Sign up</a>
         {% endif %}
+
+        
+        
+
+        
     </div>
 </div>
 

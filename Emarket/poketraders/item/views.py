@@ -32,17 +32,26 @@ def pokemons(request):
 
 def detail(request, pk):
     pokemon = get_object_or_404(PokemonOfUser, pk=pk)
-    
-    related_pokemons = PokemonOfUser.objects.filter(types__in=pokemon.types.all(), is_tradeable=True, is_sold=False).exclude(pk=pk).distinct()[:6]
-    user_profile = UserProfile.objects.get(user=request.user)
-    # Determine if the upgrade is possible
-    can_upgrade = pokemon.can_upgrade(user_profile)
 
-    return render(request, 'pokemon/detail.html',{
+    related_pokemons = PokemonOfUser.objects.filter(
+        types__in=pokemon.types.all(), 
+        is_tradeable=True, 
+        is_sold=False
+    ).exclude(pk=pk).distinct()[:6]
+
+    user_profile = None
+    if request.user.is_authenticated:
+        try:
+            user_profile = UserProfile.objects.get(user=request.user)
+        except UserProfile.DoesNotExist:
+            user_profile = None  # Handle the case where the user has no profile
+
+    return render(request, 'pokemon/detail.html', {
         'pokemon': pokemon,
         'related_pokemons': related_pokemons,
-        'can_upgrade': can_upgrade,
+        'user_profile': user_profile,
     })
+
 
 @login_required
 @user_passes_test(lambda u: u.is_staff)  # This decorator restricts access to admin users
@@ -80,12 +89,20 @@ def new(request):
 
 @login_required
 def delete(request, pk):
+    # Ensure the Pokémon belongs to the logged-in user
     pokemon = get_object_or_404(PokemonOfUser, pk=pk, owner=request.user)
-    # Get the type of the Pokémon
-    pokemon_types = pokemon.types.all()  # Get all types of the Pokémon
+
+    # Attempt to get the UserProfile
+    try:
+        user_profile = request.user.userprofile
+    except UserProfile.DoesNotExist:
+        messages.error(request, "User profile does not exist.")
+        return redirect('dashboard:index')
+
+    # Get the types of the Pokémon
+    pokemon_types = pokemon.types.all()
 
     # Update the user's token count based on the Pokémon's type(s)
-    user_profile = request.user.userprofile
     for pokemon_type in pokemon_types:
         if pokemon_type.name == 'Fire':
             user_profile.fire_tokens += 1
@@ -124,6 +141,7 @@ def delete(request, pk):
         elif pokemon_type.name == 'Normal':
             user_profile.normal_tokens += 1
 
+    # Save the updated UserProfile
     user_profile.save()
 
     # Delete the Pokémon
@@ -131,9 +149,12 @@ def delete(request, pk):
 
     return redirect('dashboard:index')
 
+
+
+
 @login_required
 def edit(request, pk):
-    pokemon = get_object_or_404(PokemonOfUser, pk=pk, owner=request.user)
+    pokemon = get_object_or_404(PokemonOfUser, pk=pk, owner=request.user.userprofile)
     if request.method == 'POST':
         form = EditPokemonPriceForm(request.POST, request.FILES, instance=pokemon)
 
@@ -166,7 +187,7 @@ def buy_pokemon(request, pk):
         request.user.userprofile.save()
 
         # Transfer ownership
-        pokemon.owner = request.user
+        pokemon.owner = request.user.userprofile
         pokemon.is_tradeable = False  # Mark as not tradeable after purchase
         pokemon.save()
 
