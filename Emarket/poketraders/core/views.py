@@ -11,11 +11,14 @@ from .forms import SignupForm
 # Create your views here.
 
 def index(request):
-    pokemons = PokemonOfUser.objects.filter(is_sold=False, is_tradeable=True)[0:150]
-    types = Type.objects.all()
+    pokemons = PokemonOfUser.objects.filter(is_tradeable=True)[:150]
+    pokemons_original = Pokemon.objects.filter()[:150]
+    types = Type.objects.prefetch_related('user_pokemons').all()
+
     return render(request, 'core/index.html', {
         'types': types,
-        'pokemons':pokemons,
+        'pokemons': pokemons,
+        'pokemons_original': pokemons_original,  
     })
 
 def contact(request):
@@ -54,7 +57,8 @@ def signup(request):
                     image=original_pokemon.image,
                     category=original_pokemon.category,
                     region=original_pokemon.region,
-                    generation=original_pokemon.generation
+                    generation=original_pokemon.generation,
+                    rarity=original_pokemon.rarity
                 )
 
                 new_pokemon.types.set(original_pokemon.types.all())

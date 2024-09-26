@@ -7,6 +7,25 @@ from django.dispatch import receiver
 class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     pokepeso = models.IntegerField(default=1000)
+       # Token fields for each Pokémon type
+    fire_tokens = models.IntegerField(default=0)
+    water_tokens = models.IntegerField(default=0)
+    grass_tokens = models.IntegerField(default=0)
+    electric_tokens = models.IntegerField(default=0)
+    ice_tokens = models.IntegerField(default=0)
+    fighting_tokens = models.IntegerField(default=0)
+    poison_tokens = models.IntegerField(default=0)
+    ground_tokens = models.IntegerField(default=0)
+    flying_tokens = models.IntegerField(default=0)
+    psychic_tokens = models.IntegerField(default=0)
+    bug_tokens = models.IntegerField(default=0)
+    rock_tokens = models.IntegerField(default=0)
+    ghost_tokens = models.IntegerField(default=0)
+    dragon_tokens = models.IntegerField(default=0)
+    dark_tokens = models.IntegerField(default=0)
+    fairy_tokens = models.IntegerField(default=0)
+    steel_tokens = models.IntegerField(default=0)
+    normal_tokens = models.IntegerField(default=0)
     experience = models.IntegerField(default=0)  # Total experience points
     level = models.IntegerField(default=1)  # User level
     
@@ -29,6 +48,8 @@ class UserProfile(models.Model):
             self.experience = 0  # Optional: reset experience to 0 after hitting level cap
 
         self.save()
+
+    
 
    
     

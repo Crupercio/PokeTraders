@@ -18,9 +18,8 @@ class Region(models.Model):
 class Rarity(models.Model):
     name = models.CharField(max_length=100)
     level_cap = models.IntegerField(default=20)  # Level cap for each rarity
+    required_tokens = models.IntegerField(default=0)  # Tokens required for this rarity
     
-    
-
     class Meta:
         ordering = ('name',)
         verbose_name_plural = 'Rarities'
@@ -28,13 +27,6 @@ class Rarity(models.Model):
     def __str__(self):
         return self.name
 
-    
-    class Meta:
-        ordering = ('name',)
-        verbose_name_plural = 'Rarities'
-    
-    def __str__(self):
-        return self.name
 
 
 class Generation(models.Model):
@@ -109,16 +101,54 @@ class PokemonOfUser(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def add_experience(self, amount):
-        if self.level >= 100:
+        if self.level >= self.rarity.level_cap:  # Check against rarity level cap
             return
+
         self.current_experience += amount
-        while self.current_experience >= 100 and self.level < 100:
+        while self.current_experience >= 100 and self.level < self.rarity.level_cap:
             self.current_experience -= 100
             self.level += 1
-        if self.level > 100:
-            self.level = 100
+
+        if self.level > self.rarity.level_cap:
+            self.level = self.rarity.level_cap
             self.current_experience = 0
+
         self.save()
+
 
     def __str__(self):
         return self.name
+    
+    def get_next_rarity_tokens(self):
+        """
+        Returns the number of tokens required to upgrade to the next rarity level.
+        """
+        rarity_upgrade_map = {
+            'Common': 10,
+            'Uncommon': 20,
+            'Rare': 40,
+            'Epic': 80
+        }
+        
+        if self.rarity and self.rarity.name in rarity_upgrade_map:
+            return rarity_upgrade_map[self.rarity.name]
+        return None  # No further upgrade if max rarity
+
+    def can_upgrade(self, user_profile):
+        """
+        Checks if the user has enough tokens to upgrade the Pokémon.
+        """
+        tokens_required = self.get_next_rarity_tokens()
+        if not tokens_required:
+            return False  # No more upgrades possible
+
+        # Check against the user's tokens for this Pokémon's type
+        pokemon_type = self.types.first()  # Assume Pokémon has at least one type for simplicity
+        if not pokemon_type:
+            return False
+
+        # Map Pokémon type to the corresponding token attribute in the UserProfile model
+        token_attribute = f"{pokemon_type.name.lower()}_tokens"
+        user_tokens = getattr(user_profile, token_attribute, 0)
+
+        return user_tokens >= tokens_required

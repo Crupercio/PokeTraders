@@ -3,9 +3,33 @@
 {% block title %} Welcome {% endblock %}
 
 {%block content %}
+{% if request.user.is_authenticated and request.user.is_staff %}
+<div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
+    <h2 class="mb-12 text-2xl text-center">Original Pokemons</h2>
+    <div class="grid grid-cols-5 gap-3">
+        {% for pokemon in pokemons_original %}
+        <div class="border border-4 border-teal-600"> 
+            <a href="{% url 'item:detail_original' pokemon.id %}">
+            
+                <div>
+                    <img src="{{ pokemon.image.url }}" class="rounded-t-xl">
+                </div>
+                <div class="p-6 bg-white rounded-b-xl">
+                    <h2 class="text-2xl">{{ pokemon.name }}</h2>
+                    <p class="text-gray-500">Price: {{ pokemon.price}}</p>
+
+                </div>
+            </a>
+            
+        </div>
+
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
     <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
         <h2 class="mb-12 text-2xl text-center">Newest Pokemons</h2>
-        <div class="grid grid-cols-6 gap-3">
+        <div class="grid grid-cols-5 gap-3">
             {% for pokemon in pokemons %}
             <div class="border border-4 border-teal-600"> 
                 <a href="{% url 'item:detail' pokemon.id %}">
@@ -28,17 +52,19 @@
         <h2 class="mb-12 text-2xl text-center">Types</h2>
         <div class="grid grid-cols-6 gap-3">
             {% for type in types %}
+            
             <div>
                 <a href="#">
                    
                     <div class="p-6 bg-white rounded-xl">
                         <h2 class="text-2xl">{{ type.name }}</h2>
-                        <p class="text-gray-500">{{ type.user_pokemons.count }} pokemons</p>
+                        <p class="text-gray-500">{{ type.user_pokemons.count }} pokemons</p> 
 
                     </div>
                 </a>
             </div>
 
+            
             {% endfor %}
         </div>
     </div>
