@@ -1,7 +1,6 @@
 __pycache__/
 env/
 *.pyc
-*.sqlite3
 *.log
 .DS_Store
 *.pkl
