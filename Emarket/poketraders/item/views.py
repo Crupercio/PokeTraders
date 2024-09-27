@@ -90,7 +90,7 @@ def new(request):
 @login_required
 def delete(request, pk):
     # Ensure the Pokémon belongs to the logged-in user
-    pokemon = get_object_or_404(PokemonOfUser, pk=pk, owner=request.user)
+    pokemon = get_object_or_404(PokemonOfUser, pk=pk, owner=request.user.userprofile)
 
     # Attempt to get the UserProfile
     try:
