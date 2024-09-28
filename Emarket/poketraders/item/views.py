@@ -5,6 +5,7 @@ from .models import Pokemon, Type, PokemonOfUser, Rarity
 from  core.models import UserProfile
 from .forms import NewPokemonForm, EditPokemonPriceForm
 from django.contrib import messages
+from django.db import transaction  # Make sure this is imported
 # Create your views here.
 
 def pokemons(request):
@@ -40,17 +41,21 @@ def detail(request, pk):
     ).exclude(pk=pk).distinct()[:6]
 
     user_profile = None
+    can_upgrade = False  # Default value
     if request.user.is_authenticated:
-        try:
-            user_profile = UserProfile.objects.get(user=request.user)
-        except UserProfile.DoesNotExist:
-            user_profile = None  # Handle the case where the user has no profile
+        user_profile = UserProfile.objects.get(user=request.user)
+        can_upgrade = pokemon.can_upgrade(user_profile)  # Check upgrade eligibility
+        # Debugging output
+        print(f"User Tokens: {user_profile.fire_tokens}, Required Tokens: {pokemon.get_next_rarity_tokens()}, Can Upgrade: {can_upgrade}")
+
 
     return render(request, 'pokemon/detail.html', {
         'pokemon': pokemon,
         'related_pokemons': related_pokemons,
         'user_profile': user_profile,
+        'can_upgrade': can_upgrade,  # Pass the flag to the template
     })
+
 
 
 @login_required
@@ -88,7 +93,7 @@ def new(request):
     })
 
 @login_required
-def delete(request, pk):
+def free(request, pk):
     # Ensure the Pokémon belongs to the logged-in user
     pokemon = get_object_or_404(PokemonOfUser, pk=pk, owner=request.user.userprofile)
 
@@ -173,70 +178,101 @@ def edit(request, pk):
 
 @login_required
 def buy_pokemon(request, pk):
+    # Fetch the Pokémon
     pokemon = get_object_or_404(PokemonOfUser, pk=pk)
 
     # Check if the Pokémon is tradeable and has a price
-    if pokemon.price is None or not pokemon.is_tradeable:
+    if not is_tradeable(pokemon):
         messages.error(request, "This Pokémon is not available for purchase.")
         return redirect('item:detail', pk=pokemon.id)
 
     # Check if the user has enough Pokepesos
-    if request.user.userprofile.pokepeso >= pokemon.price:
-        # Deduct Pokepesos from buyer
-        request.user.userprofile.pokepeso -= pokemon.price
-        request.user.userprofile.save()
-
-        # Transfer ownership
-        pokemon.owner = request.user.userprofile
-        pokemon.is_tradeable = False  # Mark as not tradeable after purchase
-        pokemon.save()
-
-        # Award experience points to the buyer
-        experience_gained = 10  # Fixed 10 XP for every purchase
-        request.user.userprofile.add_experience(experience_gained)
-
-        # Award experience points to the Pokémon
-        pokemon.add_experience(500)  # Fixed experience for Pokémon
-
-        messages.success(request, f"You have successfully bought {pokemon.name} and gained {experience_gained} experience points!")
-        return redirect('dashboard:index')
-    else:
+    buyer_profile = request.user.userprofile
+    if buyer_profile.pokepeso < pokemon.price:
         messages.error(request, "You do not have enough Pokepesos to buy this Pokémon.")
         return redirect('item:detail', pk=pokemon.id)
 
+    seller_profile = pokemon.owner  # Get the current owner (seller)
+
+    with transaction.atomic():
+        # Deduct Pokepesos from buyer
+        buyer_profile.pokepeso -= pokemon.price
+        buyer_profile.save()
+
+        # Transfer Pokepesos to seller
+        seller_profile.pokepeso += pokemon.price
+        seller_profile.save()
+
+        # Transfer ownership of the Pokémon
+        pokemon.owner = buyer_profile
+        pokemon.is_tradeable = False  # Mark as not tradeable after purchase
+        pokemon.save()
+
+        # Award experience points
+        award_experience(buyer_profile, 10)  # Fixed 10 XP for the buyer
+        pokemon.add_experience(500)  # Fixed experience for Pokémon
+
+        messages.success(request, f"You have successfully bought {pokemon.name}!")
+    
+    return redirect('dashboard:index')
+
+
+def is_tradeable(pokemon):
+    """Check if the Pokémon is tradeable and has a valid price."""
+    return pokemon.is_tradeable and pokemon.price is not None
+
+
+def award_experience(user_profile, amount):
+    """Award experience points to a user profile."""
+    user_profile.add_experience(amount)
+
+@login_required    
+@login_required    
 @login_required    
 def upgrade_rarity(request, pk):
     pokemon = get_object_or_404(PokemonOfUser, pk=pk)
 
-    if pokemon.owner != request.user:
+    if pokemon.owner != request.user.userprofile:
         messages.error(request, "You can only upgrade your own Pokémon.")
         return redirect('dashboard:index')
 
-    required_tokens = 10  # Example required tokens for rarity upgrade
     user_profile = request.user.userprofile
 
-    # Check token requirements based on Pokémon's rarity and type
-    if pokemon.rarity.name == 'Common':
-        pokemon.rarity = Rarity.objects.get(name='Uncommon')
-            
-    elif pokemon.rarity.name == 'Uncommon':
-        pokemon.rarity = Rarity.objects.get(name='Rare')
-        
-    elif pokemon.rarity.name == 'Rare':
-        pokemon.rarity = Rarity.objects.get(name='Epic')
-    elif pokemon.rarity.name == 'Epic':
-        pokemon.rarity = Rarity.objects.get(name='Ultra')        
+    # Check if the user can upgrade the Pokémon
+    if not pokemon.can_upgrade(user_profile):
+        messages.error(request, "You do not have enough tokens to upgrade this Pokémon.")
+        return redirect('dashboard:index')
 
+    # Proceed with the upgrade since the user has enough tokens
+    if pokemon.rarity.name == 'Common':
+        next_rarity = Rarity.objects.get(name='Uncommon')
+    elif pokemon.rarity.name == 'Uncommon':
+        next_rarity = Rarity.objects.get(name='Rare')
+    elif pokemon.rarity.name == 'Rare':
+        next_rarity = Rarity.objects.get(name='Epic')
+    elif pokemon.rarity.name == 'Epic':
+        next_rarity = Rarity.objects.get(name='Ultra')
     else:
         messages.error(request, "You have reached the Pokémon's max rarity.")
         return redirect('dashboard:index')
 
+    # Deduct the required tokens after confirming the upgrade
+    required_tokens = pokemon.get_next_rarity_tokens()
+    pokemon_type = pokemon.types.first()
+    token_attribute = f"{pokemon_type.name.lower()}_tokens"
     
+    # Deduct tokens
+    current_tokens = getattr(user_profile, token_attribute)
+    setattr(user_profile, token_attribute, current_tokens - required_tokens)
+
+    # Upgrade the Pokémon's rarity
+    pokemon.rarity = next_rarity
     pokemon.save()
     user_profile.save()
 
-    messages.success(request, f"You have successfully upgraded {pokemon.name} to {pokemon.next_rarity.name} rarity!")
+    messages.success(request, f"You have successfully upgraded {pokemon.name} to {next_rarity.name} rarity!")
     return redirect('dashboard:index')
+
 
 
 

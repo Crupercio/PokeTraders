@@ -128,7 +128,8 @@ class PokemonOfUser(models.Model):
             'Common': 10,
             'Uncommon': 20,
             'Rare': 40,
-            'Epic': 80
+            'Epic': 80,
+            'Ultra': 1,
         }
         
         if self.rarity and self.rarity.name in rarity_upgrade_map:
@@ -143,13 +144,14 @@ class PokemonOfUser(models.Model):
         if not tokens_required:
             return False  # No more upgrades possible
 
-        # Check against the user's tokens for this Pokémon's type
         pokemon_type = self.types.first()  # Assume Pokémon has at least one type for simplicity
         if not pokemon_type:
             return False
 
-        # Map Pokémon type to the corresponding token attribute in the UserProfile model
+        # Construct the token attribute name
         token_attribute = f"{pokemon_type.name.lower()}_tokens"
         user_tokens = getattr(user_profile, token_attribute, 0)
 
         return user_tokens >= tokens_required
+
+
