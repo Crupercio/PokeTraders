@@ -13,4 +13,5 @@ urlpatterns = [
     path('<int:pk>/edit/', views.edit, name='edit'),
     path('<int:pk>/buy', views.buy_pokemon, name='buy'),
     path('<int:pk>/upgrade', views.upgrade_rarity, name='upgrade'),
+    path('claim/', views.claim_pokemon, name='claim'),
 ]

@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
 
 # Create your models here.
 class UserProfile(models.Model):
@@ -29,6 +30,15 @@ class UserProfile(models.Model):
     experience = models.IntegerField(default=0)  # Total experience points
     level = models.IntegerField(default=1)  # User level
     
+    last_claimed = models.DateTimeField(null=True, blank=True)
+
+    def can_claim(self):
+        """Check if the user can claim a new Pokémon."""
+        if self.last_claimed is None:
+            return True
+        # Check if a day has passed since the last claim
+        return (timezone.now() - self.last_claimed).days >= 1
+
     def __str__(self):
         return self.user.username
 

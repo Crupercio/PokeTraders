@@ -5,7 +5,9 @@ from .models import Pokemon, Type, PokemonOfUser, Rarity
 from  core.models import UserProfile
 from .forms import NewPokemonForm, EditPokemonPriceForm
 from django.contrib import messages
-from django.db import transaction  # Make sure this is imported
+from django.db import transaction  
+from django.utils import timezone
+import random
 # Create your views here.
 
 def pokemons(request):
@@ -91,6 +93,53 @@ def new(request):
         'form': form,
         'title': 'New pokemons',
     })
+
+
+@login_required
+def claim_pokemon(request):
+    user_profile = request.user.userprofile
+
+    if not user_profile.can_claim():
+        messages.error(request, "You can only claim a new Pokémon once every 24 hours.")
+        return redirect('dashboard:index')
+
+    # Get all original Pokémon
+    original_pokemons = Pokemon.objects.filter(is_original=True)
+
+    # Check if there are any original Pokémon to choose from
+    if not original_pokemons.exists():
+        messages.error(request, "No original Pokémon available for claim.")
+        return redirect('dashboard:index')
+
+    # Select a random original Pokémon
+    selected_pokemon = random.choice(original_pokemons)
+
+    # Create a new Pokémon instance
+    new_pokemon = PokemonOfUser.objects.create(
+        owner=user_profile,
+        name=selected_pokemon.name,
+        description=selected_pokemon.description,
+        level=1,
+        current_experience=0,
+        is_tradeable=selected_pokemon.is_tradeable,
+        is_original=False,
+        image=selected_pokemon.image,
+        category=selected_pokemon.category,  # Ensure category is valid
+        region=selected_pokemon.region,
+        generation=selected_pokemon.generation,
+        rarity=selected_pokemon.rarity
+    )
+
+    # Set the types for the new Pokémon
+    new_pokemon.types.set(selected_pokemon.types.all())
+
+    # Update last claimed time
+    user_profile.last_claimed = timezone.now()
+    user_profile.save()
+
+    messages.success(request, f"You have successfully claimed a new Pokémon: {new_pokemon.name}!")
+    return redirect('dashboard:index')
+
 
 @login_required
 def free(request, pk):
