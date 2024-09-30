@@ -19,19 +19,25 @@
     
     <nav class="py-6 px-6 flex justify-between items-center border-b border-gray-200">
         <a href="/" class="text-xl font-semibold">PokeTraders</a>
+        {% if request.user.is_authenticated %}
+        <div class="flex items-center justify-center space-x-2">
+            <img src="{% static 'images/coin.png' %}" alt="Fire Token" class="h-8 w-8">
+            <span class="text-lg font-semibold hover:text-gray-500">{{ request.user.userprofile.pokepeso }}</span>
+        </div>
+        {% endif %}
         <div class="space-x-6">
-            {% if request.user.is_authenticated %}
-                <a class="text-lg font-semibold">
-                    <img src="{% static 'images/coin.png' %}" alt="Pokepeso" class="h-6 mr-2">{{ request.user.userprofile.pokepeso }}
-                </a>
-            {% endif %}
+            
     
             {% if request.user.is_authenticated and request.user.is_staff %}
                 <a href="{% url 'item:new' %}" class="text-lg font-semibold hover:text-gray-500">New Pokémon</a>
             {% endif %}
+            
             <a href="{% url 'item:pokemons' %}" class="text-lg font-semibold hover:text-gray-500">Browse</a>
     
+            
             {% if request.user.is_authenticated %}
+            <a href="{% url 'item:claim_pokepesos' %}" class="px-6 py-3 text-lg font-semibold bg-orange-500 text-white rounded-xl hover:bg-orange-700">Claim Pokepesos</a>
+            <a href="{% url 'item:claim_pokemon' %}" class="px-6 py-3 text-lg font-semibold bg-orange-500 text-white rounded-xl hover:bg-orange-700">Claim Pokemon</a>
                 <a href="{% url 'dashboard:index' %}" class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Dashboard</a>
                 <form action="{% url 'core:logout' %}" method="post" style="display: inline;">
                     {% csrf_token %}

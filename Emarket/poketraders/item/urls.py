@@ -9,8 +9,10 @@ urlpatterns = [
     path('new/',views.new, name='new'),
     path('<int:pk>/', views.detail, name='detail'),
     path('<int:pk>/original', views.detail_original, name='detail_original'),
-    path('<int:pk>/delete/', views.delete, name='delete'),
+    path('<int:pk>/free/', views.free, name='free'),
     path('<int:pk>/edit/', views.edit, name='edit'),
     path('<int:pk>/buy', views.buy_pokemon, name='buy'),
     path('<int:pk>/upgrade', views.upgrade_rarity, name='upgrade'),
+    path('claim/pokemon', views.claim_pokemon, name='claim_pokemon'),
+    path('claim/pokepesos', views.claim_pokepesos, name='claim_pokepesos'),
 ]
