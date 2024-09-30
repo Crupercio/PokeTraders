@@ -140,6 +140,25 @@ def claim_pokemon(request):
     messages.success(request, f"You have successfully claimed a new Pokémon: {new_pokemon.name}!")
     return redirect('dashboard:index')
 
+@login_required
+def claim_pokepesos(request):
+    user_profile = request.user.userprofile
+
+    # Check if the user can claim Pokepesos
+    if not user_profile.can_claim_pokepesos():
+        messages.error(request, "You can only claim Pokepesos once every 6 hours.")
+        return redirect('dashboard:index')
+
+    # Define the amount of Pokepesos to claim
+    amount_to_claim = 100  # Adjust the amount as needed
+
+    # Update the user's Pokepesos
+    user_profile.pokepeso += amount_to_claim
+    user_profile.last_claimed_pokepesos = timezone.now()  # Track last claim time
+    user_profile.save()
+
+    messages.success(request, f"You have successfully claimed {amount_to_claim} Pokepesos!")
+    return redirect('dashboard:index')
 
 @login_required
 def free(request, pk):
