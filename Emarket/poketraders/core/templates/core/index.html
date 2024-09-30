@@ -27,26 +27,81 @@
     </div>
 </div>
 {% endif %}
-    <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
-        <h2 class="mb-12 text-2xl text-center">Newest Pokemons</h2>
-        <div class="grid grid-cols-5 gap-3">
+<div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl relative z-0">
+    <h2 class="mb-12 text-2xl text-center ">Newest Pokémons</h2>
+
+    <div id="pokemonCarousel" class="carousel slide" data-ride="carousel" data-interval="3000">
+        <div class="carousel-inner">
             {% for pokemon in pokemons %}
-            <div class="border border-4 border-teal-600"> 
-                <a href="{% url 'item:detail' pokemon.id %}">
-                    <div>
-                        <img src="{{ pokemon.image.url }}" class="rounded-t-xl">
-                    </div>
-                    <div class="p-6 bg-white rounded-b-xl">
-                        <h2 class="text-2xl">{{ pokemon.name }}</h2>
-                        <p class="text-gray-500">Price: {{ pokemon.price}}</p>
-
-                    </div>
-                </a>
+            <div class="carousel-item {% if forloop.first %}active{% endif %}" data-pokemon-id="{{ pokemon.id }}">
+                <div class="text-center"> 
+                    <a href="{% url 'item:detail' pokemon.id %}" class="no-underline hover:no-underline">
+                        <!-- Ensure the container allows the image to expand -->
+                        <img src="{{ pokemon.image.url }}" class="d-block mx-auto rounded hover:scale-110 transition-transform duration-300 relative z-20 hover:z-30" style="width: 25%; height: auto;" alt="{{ pokemon.name }}">
+                        <!-- Adjust margin-top to ensure the text block doesn't overlap the image -->
+                        <div class="p-4 bg-teal-500 text-white rounded-xl mt-6 w-1/6 mx-auto">
+                            <h2 class="text-2xl font-bold">{{ pokemon.name }}</h2>
+                            <p class="text-xl font-bold">Price: {{ pokemon.price }}</p>
+                        </div>
+                    </a>
+                </div>
             </div>
-
             {% endfor %}
         </div>
+
+        <!-- Previous Button -->
+        <a class="carousel-control-prev flex items-center justify-center" href="#pokemonCarousel" role="button" data-slide="prev" id="prev-button">
+            <span class="sr-only">Previous</span>
+            <img id="prev-image" class="w-1/1 rounded opacity-50 hover:opacity-100 transition-opacity duration-300" alt="Previous Pokémon">
+        </a>
+
+        <!-- Next Button -->
+        <a class="carousel-control-next flex items-center justify-center" href="#pokemonCarousel" role="button" data-slide="next" id="next-button">
+            <span class="sr-only">Next</span>
+            <img id="next-image" class="w-1/1 rounded opacity-100" alt="Next Pokémon">
+        </a>
     </div>
+</div>
+
+<script>
+    // Get all carousel items and the image elements
+    const carouselItems = document.querySelectorAll('.carousel-item');
+    const prevImage = document.getElementById('prev-image');
+    const nextImage = document.getElementById('next-image');
+
+    // Function to update the images for the next and previous Pokémon
+    function updateCarouselImages() {
+        const activeItem = document.querySelector('.carousel-item.active');
+        const activeIndex = Array.from(carouselItems).indexOf(activeItem);
+
+        // Set previous image (grayed out)
+        if (activeIndex > 0) {
+            prevImage.src = carouselItems[activeIndex - 1].querySelector('img').src;
+        } else {
+            prevImage.src = carouselItems[carouselItems.length - 1].querySelector('img').src; // Loop back to last
+        }
+
+        // Set next image (always fully highlighted)
+        if (activeIndex < carouselItems.length - 1) {
+            nextImage.src = carouselItems[activeIndex + 1].querySelector('img').src;
+        } else {
+            nextImage.src = carouselItems[0].querySelector('img').src; // Loop back to first
+        }
+    }
+
+    // Update images initially
+    updateCarouselImages();
+
+    // Update images when the carousel slides
+    $('#pokemonCarousel').on('slid.bs.carousel', function () {
+        updateCarouselImages();
+    });
+</script>
+
+
+
+
+
 
     <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
         <h2 class="mb-12 text-2xl text-center">Types</h2>

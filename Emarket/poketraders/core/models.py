@@ -43,7 +43,7 @@ class UserProfile(models.Model):
         """Check if the user can claim Pokepesos."""
         if self.last_claimed_pokepesos is None:
             return True
-        return (timezone.now() - self.last_claimed_pokepesos).total_seconds() >= 21600  # 6 hours in seconds
+        return (timezone.now() - self.last_claimed_pokepesos).total_seconds() >= 7200  # 6 hours in seconds
 
     def __str__(self):
         return self.user.username

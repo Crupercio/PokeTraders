@@ -146,7 +146,7 @@ def claim_pokepesos(request):
 
     # Check if the user can claim Pokepesos
     if not user_profile.can_claim_pokepesos():
-        messages.error(request, "You can only claim Pokepesos once every 6 hours.")
+        messages.error(request, "You can only claim Pokepesos once every 2 hours.")
         return redirect('dashboard:index')
 
     # Define the amount of Pokepesos to claim
@@ -174,45 +174,69 @@ def free(request, pk):
 
     # Get the types of the Pokémon
     pokemon_types = pokemon.types.all()
+    type_count = pokemon_types.count()  # Count the number of types
 
-    # Update the user's token count based on the Pokémon's type(s)
-    for pokemon_type in pokemon_types:
-        if pokemon_type.name == 'Fire':
-            user_profile.fire_tokens += 1
-        elif pokemon_type.name == 'Water':
-            user_profile.water_tokens += 1
-        elif pokemon_type.name == 'Grass':
-            user_profile.grass_tokens += 1
-        elif pokemon_type.name == 'Electric':
-            user_profile.electric_tokens += 1
-        elif pokemon_type.name == 'Ice':
-            user_profile.ice_tokens += 1
-        elif pokemon_type.name == 'Fighting':
-            user_profile.fighting_tokens += 1
-        elif pokemon_type.name == 'Poison':
-            user_profile.poison_tokens += 1
-        elif pokemon_type.name == 'Ground':
-            user_profile.ground_tokens += 1
-        elif pokemon_type.name == 'Flying':
-            user_profile.flying_tokens += 1
-        elif pokemon_type.name == 'Psychic':
-            user_profile.psychic_tokens += 1
-        elif pokemon_type.name == 'Bug':
-            user_profile.bug_tokens += 1
-        elif pokemon_type.name == 'Rock':
-            user_profile.rock_tokens += 1
-        elif pokemon_type.name == 'Ghost':
-            user_profile.ghost_tokens += 1
-        elif pokemon_type.name == 'Dragon':
-            user_profile.dragon_tokens += 1
-        elif pokemon_type.name == 'Dark':
-            user_profile.dark_tokens += 1
-        elif pokemon_type.name == 'Fairy':
-            user_profile.fairy_tokens += 1
-        elif pokemon_type.name == 'Steel':
-            user_profile.steel_tokens += 1
-        elif pokemon_type.name == 'Normal':
-            user_profile.normal_tokens += 1
+    # Determine the rarity of the Pokémon
+    rarity = pokemon.rarity  # Assuming the Pokemon model has a field for rarity
+
+    # Check rarity and award tokens accordingly
+    if rarity:
+        if rarity.name == 'Common':
+            # Award 1 token for each type if the rarity is Common
+            tokens_awarded = 1 
+        elif rarity.name in ['Uncommon', 'Rare', 'Epic', 'Ultra']:
+            # Award 1/4 of the level cap in tokens for each type
+            if rarity.name == "Uncommon":
+                tokens_awarded = rarity.level_cap / 4 / type_count
+            elif rarity.name == "Rare":
+                tokens_awarded = rarity.level_cap / 2 / type_count
+            elif rarity.name == "Epic":
+                tokens_awarded = rarity.level_cap / 1 / type_count
+            elif rarity.name == "Ultra":
+                tokens_awarded = (rarity.level_cap / 2 / type_count) + random.randint(1,30)
+
+            
+        else:
+            tokens_awarded = 0  # For any other rarity, no tokens awarded
+
+        # Update the user's token count based on the Pokémon's type(s)
+        for pokemon_type in pokemon_types:
+            if pokemon_type.name == 'Fire':
+                user_profile.fire_tokens += tokens_awarded
+            elif pokemon_type.name == 'Water':
+                user_profile.water_tokens += tokens_awarded
+            elif pokemon_type.name == 'Grass':
+                user_profile.grass_tokens += tokens_awarded
+            elif pokemon_type.name == 'Electric':
+                user_profile.electric_tokens += tokens_awarded
+            elif pokemon_type.name == 'Ice':
+                user_profile.ice_tokens += tokens_awarded
+            elif pokemon_type.name == 'Fighting':
+                user_profile.fighting_tokens += tokens_awarded
+            elif pokemon_type.name == 'Poison':
+                user_profile.poison_tokens += tokens_awarded
+            elif pokemon_type.name == 'Ground':
+                user_profile.ground_tokens += tokens_awarded
+            elif pokemon_type.name == 'Flying':
+                user_profile.flying_tokens += tokens_awarded
+            elif pokemon_type.name == 'Psychic':
+                user_profile.psychic_tokens += tokens_awarded
+            elif pokemon_type.name == 'Bug':
+                user_profile.bug_tokens += tokens_awarded
+            elif pokemon_type.name == 'Rock':
+                user_profile.rock_tokens += tokens_awarded
+            elif pokemon_type.name == 'Ghost':
+                user_profile.ghost_tokens += tokens_awarded
+            elif pokemon_type.name == 'Dragon':
+                user_profile.dragon_tokens += tokens_awarded
+            elif pokemon_type.name == 'Dark':
+                user_profile.dark_tokens += tokens_awarded
+            elif pokemon_type.name == 'Fairy':
+                user_profile.fairy_tokens += tokens_awarded
+            elif pokemon_type.name == 'Steel':
+                user_profile.steel_tokens += tokens_awarded
+            elif pokemon_type.name == 'Normal':
+                user_profile.normal_tokens += tokens_awarded
 
     # Save the updated UserProfile
     user_profile.save()
@@ -278,7 +302,7 @@ def buy_pokemon(request, pk):
 
         # Award experience points
         award_experience(buyer_profile, 10)  # Fixed 10 XP for the buyer
-        pokemon.add_experience(500)  # Fixed experience for Pokémon
+        pokemon.add_experience(10)  # Fixed experience for Pokémon
 
         messages.success(request, f"You have successfully bought {pokemon.name}!")
     
