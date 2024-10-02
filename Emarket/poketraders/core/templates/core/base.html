@@ -12,7 +12,11 @@
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.11/dist/umd/popper.min.js"></script>
         <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://threejs.org/examples/js/loaders/GLTFLoader.js"></script>
+        <script src="https://threejs.org/examples/js/loaders/GLTFLoader.js"></script>
+        <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+        <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
+       
+
 
     
         
@@ -20,6 +24,53 @@
         <style>
             body { margin: 0; }
             canvas { display: block; }
+
+            .carousel-container {
+    position: relative;
+    width: 100%;
+    max-width: 800px; /* Adjust as needed */
+    margin: auto;
+    overflow: hidden;
+}
+
+.carousel {
+    display: flex;
+    transition: transform 0.5s ease-in-out;
+}
+
+.carousel-item {
+    display: none; /* Hide all items initially */
+    flex: 1 0 100%; /* Make sure each item takes full width */
+    justify-content: center; /* Center the model viewer */
+    align-items: center; /* Center vertically */
+    height: 500px; /* Set a specific height */
+}
+
+.carousel-button {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(255, 255, 255, 0.8);
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 10; /* Ensure buttons are above other elements */
+}
+
+.prev {
+    left: 10px;
+}
+
+.next {
+    right: 10px;
+}
+
+.model-viewer {
+    width: 100%; /* Make sure the model viewer takes full width */
+    height: auto; /* Maintain aspect ratio */
+    max-height: 500px; /* Ensure it doesn't exceed this height */
+}
+
         </style>
 
     <title>{% block title %} {% endblock %} | PokeTraders</title>

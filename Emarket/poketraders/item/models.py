@@ -101,6 +101,11 @@ class PokemonOfUser(models.Model):
     is_sold = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    # New field for the directory of the 3D model
+    model_directory = models.CharField(max_length=255, blank=True, null=True)
+    model_file_name = models.CharField(max_length=100, blank=True, null=True)
+
+
     def add_experience(self, amount):
         if self.level >= self.rarity.level_cap:  # Check against rarity level cap
             return
