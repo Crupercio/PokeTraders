@@ -1,0 +1,11 @@
+Model Information:
+* title:	Deadpool
+* source:	https://sketchfab.com/3d-models/deadpool-359b8b268695409089bade4232c738a0
+* author:	CzernO (https://sketchfab.com/czernobog)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Deadpool" (https://sketchfab.com/3d-models/deadpool-359b8b268695409089bade4232c738a0) by CzernO (https://sketchfab.com/czernobog) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

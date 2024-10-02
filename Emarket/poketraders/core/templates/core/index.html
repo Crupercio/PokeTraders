@@ -1,5 +1,6 @@
 {% extends 'core/base.html' %}
 
+{% load static %}
 {% block title %} Welcome {% endblock %}
 
 {%block content %}
@@ -99,10 +100,178 @@
 </script>
 
 
+<div class="carousel-container">
+    <div class="carousel">
+        <div class="carousel-item active">
+            <model-viewer 
+                src="static/models/Tsuyu_Asui/Tsuyu_Asui.gltf" 
+                alt="A 3D model of Tsuyu Asui" 
+                shadow-intensity="1" 
+                camera-controls 
+                auto-rotate 
+                ar 
+                style="width: 100%; height: 500px;">
+            </model-viewer>
+        </div>
+        <div class="carousel-item">
+            <model-viewer 
+                src="static/models/Deadpool/deadpool.gltf" 
+                alt="A 3D model of Deadpool" 
+                shadow-intensity="1" 
+                camera-controls 
+                auto-rotate 
+                ar 
+                style="width: 100%; height: 500px;">
+            </model-viewer>
+        </div>
+        <div class="carousel-item">
+            <model-viewer 
+                src="static/models/Shoto_Todoroki/shoto_todoroki.gltf" 
+                alt="A 3D model of Shoto Todoroki" 
+                shadow-intensity="1" 
+                camera-controls 
+                auto-rotate 
+                ar 
+                style="width: 100%; height: 500px;">
+            </model-viewer>
+        </div>
+    </div>
+    
+    <button class="carousel-button prev" onclick="prevSlide()">&#10094;</button>
+    <button class="carousel-button next" onclick="nextSlide()">&#10095;</button>
+</div>
+
+<!-- Include scripts -->
+<script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+<script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
+<script>
+    let currentSlide = 0;
+
+    function showSlide(index) {
+        const items = document.querySelectorAll('.carousel-item');
+        items.forEach((item, i) => {
+            item.style.display = (i === index) ? 'block' : 'none';
+        });
+    }
+
+    function nextSlide() {
+        const items = document.querySelectorAll('.carousel-item');
+        currentSlide = (currentSlide + 1) % items.length;
+        showSlide(currentSlide);
+    }
+
+    function prevSlide() {
+        const items = document.querySelectorAll('.carousel-item');
+        currentSlide = (currentSlide - 1 + items.length) % items.length;
+        showSlide(currentSlide);
+    }
+
+    // Initialize the carousel
+    showSlide(currentSlide);
+</script>
+
+<style>
+    .carousel-container {
+        position: relative;
+        width: 100%;
+        max-width: 800px; /* Adjust as needed */
+        margin: auto;
+        overflow: hidden;
+    }
+
+    .carousel {
+        display: flex;
+        transition: transform 0.5s ease-in-out;
+    }
+
+    .carousel-item {
+        display: none; /* Hide all items initially */
+        flex: 1 0 100%; /* Make sure each item takes full width */
+    }
+
+    .carousel-button {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background-color: rgba(255, 255, 255, 0.8);
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+        z-index: 10;
+    }
+
+    .prev {
+        left: 10px;
+    }
+
+    .next {
+        right: 10px;
+    }
+</style>
+
+<div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
+    <h2 class="mb-12 text-2xl text-center">3D Models</h2>
+    <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
+        <div style="width: 30%; margin-bottom: 20px;">
+            <div class="border border-gray-300 rounded-xl shadow-lg overflow-hidden">
+                <model-viewer 
+                    src="{% static 'models/Tsuyu_Asui/Tsuyu_Asui.gltf' %}" 
+                    alt="A 3D model of Tsuyu Asui" 
+                    shadow-intensity="1" 
+                    camera-controls 
+                    auto-rotate 
+                    ar 
+                    style="width: 100%; height: 300px;">
+                </model-viewer>
+                <div class="p-4 bg-white">
+                    <h3 class="text-xl font-bold">Tsuyu Asui</h3>
+                    <p class="text-gray-500">Price: $30.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="width: 30%; margin-bottom: 20px;">
+            <div class="border border-gray-300 rounded-xl shadow-lg overflow-hidden">
+                <model-viewer 
+                    src="{% static 'models/Deadpool/deadpool.gltf' %}" 
+                    alt="A 3D model of Deadpool" 
+                    shadow-intensity="1" 
+                    camera-controls 
+                    auto-rotate 
+                    ar 
+                    style="width: 100%; height: 300px;">
+                </model-viewer>
+                <div class="p-4 bg-white">
+                    <h3 class="text-xl font-bold">Deadpool</h3>
+                    <p class="text-gray-500">Price: $40.00</p>
+                </div>
+            </div>
+        </div>
+
+        <div style="width: 30%; margin-bottom: 20px;">
+            <div class="border border-gray-300 rounded-xl shadow-lg overflow-hidden">
+                <model-viewer 
+                    src="{% static 'models/Shoto_Todoroki/shoto_todoroki.gltf' %}" 
+                    alt="A 3D model of Shoto Todoroki" 
+                    shadow-intensity="1" 
+                    camera-controls 
+                    auto-rotate 
+                    ar 
+                    style="width: 100%; height: 300px;">
+                </model-viewer>
+                <div class="p-4 bg-white">
+                    <h3 class="text-xl font-bold">Shoto Todoroki</h3>
+                    <p class="text-gray-500">Price: $35.00</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 
 
-
+    
+    <!--Testing 3d objects--> 
     <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
         <h2 class="mb-12 text-2xl text-center">Types</h2>
         <div class="grid grid-cols-6 gap-3">
@@ -124,5 +293,3 @@
         </div>
     </div>
 {% endblock %}
-
-        
