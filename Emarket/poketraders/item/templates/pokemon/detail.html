@@ -3,9 +3,9 @@
 {% block title %} {{ pokemon.name }} {% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-5 gap-6">
+<div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
     <div class="col-span-3">
-        <img src="{{ pokemon.image.url }}" class="rounded-xl">
+        <img src="{{ pokemon.image.url }}" class="rounded-xl w-full object-cover">
     </div>
     <div class="col-span-2 p-6 bg-gray-100 rounded-xl">
         <h1 class="mb-6 text-3xl">{{ pokemon.name }}</h1>
@@ -13,73 +13,59 @@
         <p class="text-gray-500"><strong>Price: </strong>{{ pokemon.price }}</p>
         <p class="text-gray-500"><strong>Owner: </strong>{{ pokemon.owner }}</p>
         <p class="text-gray-500"><strong>Level: </strong>{{ pokemon.level }}</p>
-        <p class="text-gray-500"><strong>Type: </strong>
-            {{ pokemon.types.all.0.name }}
-        </p>
+        <p class="text-gray-500"><strong>Type: </strong>{{ pokemon.types.all.0.name }}</p>
         {% if pokemon.types.count > 1 %}
-            <p class="text-gray-500"><strong>Type2: </strong>
-                {{ pokemon.types.all.1.name }}
-            </p>
+        <p class="text-gray-500"><strong>Type 2: </strong>{{ pokemon.types.all.1.name }}</p>
         {% endif %}
-        
-        <p class="text-gray-500"><strong>Region </strong>{{ pokemon.region.name }}</p>
+        <p class="text-gray-500"><strong>Region: </strong>{{ pokemon.region.name }}</p>
         <p class="text-gray-500"><strong>Current Experience: </strong>{{ pokemon.current_experience }}</p>
         <br>
         {% if pokemon.description %}
-            <p class="text-gray-700">
-                <strong class="text-gray-500">Description:</strong><br>
-                {{ pokemon.description }}
-            </p>
+        <p class="text-gray-700">
+            <strong class="text-gray-500">Description:</strong><br>
+            {{ pokemon.description }}
+        </p>
         {% endif %}
 
-       
+        <!-- Action Buttons for owner or buyer -->
         {% if user_profile %}
-            {% if user_profile == pokemon.owner %}
-            <div class="mt-6 p-6 bg-white rounded-xl">
-                <p>This is your item!</p>
-                <a href="{% url 'item:edit' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Edit</a>
-                <a href="{% url 'item:free' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">Set Free</a>
-                
-                <form action="{% url 'item:upgrade' pokemon.id %}" method="POST" style="display: inline;">
-                    {% csrf_token %}
-                    <button type="submit" 
-                            class="inline-block mt-6 px-6 py-3 rounded-xl font-semibold 
-                                   {% if can_upgrade %}bg-yellow-500 hover:bg-yellow-700 text-white{% else %}opacity-50 cursor-not-allowed bg-gray-300 text-gray-500{% endif %}" 
-                            {% if not can_upgrade %}disabled{% endif %}>
-                        Upgrade
-                    </button>
-                </form>
-                
-
-
-
-                        
-            </div>
-            {% else %}
-            <a href="{% url 'item:buy' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Buy</a>
-            {% endif %}
+        {% if user_profile == pokemon.owner %}
+        <div class="mt-6 p-6 bg-white rounded-xl">
+            <p>This is your item!</p>
+            <a href="{% url 'item:edit' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Edit</a>
+            <a href="{% url 'item:free' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-blue-500 text-white rounded-xl hover:bg-blue-700">Set Free</a>
+            <form action="{% url 'item:upgrade' pokemon.id %}" method="POST" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" 
+                    class="inline-block mt-6 px-6 py-3 rounded-xl font-semibold 
+                    {% if can_upgrade %}bg-yellow-500 hover:bg-yellow-700 text-white{% else %}opacity-50 cursor-not-allowed bg-gray-300 text-gray-500{% endif %}" 
+                    {% if not can_upgrade %}disabled{% endif %}>
+                    Upgrade
+                </button>
+            </form>
+        </div>
         {% else %}
-        
+        <a href="{% url 'item:buy' pokemon.id %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Buy</a>
+        {% endif %}
+        {% else %}
         <a href="{% url 'core:signup' %}" class="inline-block mt-6 px-6 py-3 font-semibold bg-pink-500 text-white rounded-xl hover:bg-pink-700">Sign up</a>
         {% endif %}
-
-        
-        
-
-        
     </div>
 </div>
 
+<!-- Related Pokémon Section -->
 <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
-    <h2 class="mb-12 text-2xl text-center">Related Pokemons</h2>
-    <div class="grid grid-cols-6 gap-3">
+    <h2 class="mb-12 text-2xl text-center">Related Pokémons</h2>
+    
+    <!-- Responsive Grid for Related Pokémons -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
         {% for related_pokemon in related_pokemons %}
-        <div class="border border-4 border-teal-600"> 
+        <div class="border border-4 border-teal-600 rounded-xl overflow-hidden"> 
             <a href="{% url 'item:detail' related_pokemon.id %}">
                 <div>
-                    <img src="{{ related_pokemon.image.url }}" class="rounded-t-xl">
+                    <img src="{{ related_pokemon.image.url }}" class="w-full h-48 object-cover">
                 </div>
-                <div class="p-6 bg-white rounded-b-xl">
+                <div class="p-6 bg-white">
                     <h2 class="text-2xl">{{ related_pokemon.name }}</h2>
                     <p class="text-gray-500">Price: {{ related_pokemon.price }}</p>
                 </div>

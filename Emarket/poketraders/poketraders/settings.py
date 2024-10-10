@@ -25,7 +25,22 @@ SECRET_KEY = 'django-insecure-%_^#@-_l0pc!#mx9v)=0!z7eg_#kpkw5y0nc32q5$(t_y(0#zw
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost', 
+    '127.0.0.1', 
+    '937b-2603-3023-102-9d00-357e-c798-cf9c-6009.ngrok-free.app', 
+    '9647-2603-3023-102-9d00-49b1-2c42-a4d6-5385.ngrok-free.app', 
+    '10.1.10.224'
+]
+
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://937b-2603-3023-102-9d00-357e-c798-cf9c-6009.ngrok-free.app',
+    'https://9647-2603-3023-102-9d00-49b1-2c42-a4d6-5385.ngrok-free.app'
+]
+
+
+
 LOGIN_URL = '/login/'
 LOGOUT_URL = '/logout/'
 LOGIN_REDIRECT_URL = '/'
@@ -46,6 +61,7 @@ INSTALLED_APPS = [
     'item',
     'dashboard',
     'conversation',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [

@@ -2,28 +2,25 @@
 
 {% block title %} Dashboard {% endblock %}
 
-{%block content %}
-    <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
-        <h2 class="mb-12 text-2xl text-center">My Pokemons</h2>
-        <div class="grid grid-cols-4 gap-6">
-            {% for pokemon in pokemons %}
-            <div class="border border-4 border-teal-600"> 
-                <a href="{% url 'item:detail' pokemon.id %}">
-                    <div>
-                        <img src="{{ pokemon.image.url }}" class="rounded-t-xl">
-                    </div>
-                    <div class="p-6 bg-white rounded-b-xl">
-                        <h2 class="text-2xl">{{ pokemon.name }}</h2>
-                        <p class="text-gray-500">Price: {{ pokemon.price}}</p>
-
-                    </div>
-                </a>
-            </div>
-
-            {% endfor %}
+{% block content %}
+<div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
+    <h2 class="mb-12 text-2xl text-center">My Pokémons</h2>
+    
+    <!-- Responsive Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {% for pokemon in pokemons %}
+        <div class="border border-4 border-teal-600 rounded-xl overflow-hidden"> 
+            <a href="{% url 'item:detail' pokemon.id %}">
+                <div class="w-full h-64">
+                    <img src="{{ pokemon.image.url }}" class="object-cover w-full h-full">
+                </div>
+                <div class="p-6 bg-white">
+                    <h2 class="text-2xl">{{ pokemon.name }}</h2>
+                    <p class="text-gray-500">Price: {{ pokemon.price }}</p>
+                </div>
+            </a>
         </div>
+        {% endfor %}
     </div>
-
-   
-    </div>
+</div>
 {% endblock %}

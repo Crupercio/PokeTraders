@@ -2,31 +2,28 @@
 
 {% block title %} Pokemons for Sale {% endblock %}
 
-{%block content %}
-<div class="pb-6 grid grid-cols-4 gap-6 bg-gray-100 rounded-xl">
-    <div class="col-span-1 ">
-        <br>
-        <form method="get" action="{% url 'item:pokemons' %}" class="px-4">
-            <input name="query" class="w-full py-4 px-6 border rounded-xl" type="text" value="{{ query }}" placeholder="Find your pokemon...">
-            
-            <button class="mt-2 py-4 px-8 text-lg bg-teal-500 text-white rounded-xl">Search</button>
+{% block content %}
+<div class="pb-6 grid grid-cols-1 md:grid-cols-4 gap-6 bg-gray-100 rounded-xl">
+    <!-- Sidebar Form Section -->
+    <div class="col-span-1 p-4 bg-white rounded-xl shadow-md">
+        <form method="get" action="{% url 'item:pokemons' %}" class="space-y-4">
+            <input name="query" class="w-full py-3 px-4 border rounded-xl" type="text" value="{{ query }}" placeholder="Find your pokemon...">
+            <button class="w-full py-3 text-lg bg-teal-500 text-white rounded-xl hover:bg-teal-700">Search</button>
 
-            <div>
-                <label>Select Types:</label>
-                <div class="flex flex-col">
+            <div class="mt-4">
+                <label class="block mb-2 font-semibold">Select Types:</label>
+                <div class="grid grid-cols-2 gap-2">
                     {% for type in all_types %}
-                        <div>
-                            <input type="checkbox" id="type_{{ type.id }}" name="types" value="{{ type.id }}" 
+                        <div class="flex items-center">
+                            <input type="checkbox" id="type_{{ type.id }}" name="types" value="{{ type.id }}"
                             {% if type.id|stringformat:"d" in selected_types %}checked{% endif %}>
-                            <label for="type_{{ type.id }}">{{ type.name }}</label>
+                            <label for="type_{{ type.id }}" class="ml-2">{{ type.name }}</label>
                         </div>
                     {% endfor %}
                 </div>
             </div>
-            <button class="mt-2 py-4 px-8 text-lg bg-orange-500 text-white rounded-xl" type="button" onclick="clearFilters()">Clear</button>
 
-            
-            
+            <button class="w-full py-3 text-lg bg-orange-500 text-white rounded-xl hover:bg-orange-700" type="button" onclick="clearFilters()">Clear</button>
         </form>
 
         <script>
@@ -43,31 +40,27 @@
             }
         </script>
     </div>
-    <div class="col-span-3">
+
+    <!-- Pokemon Listings Section -->
+    <div class="col-span-1 md:col-span-3">
         <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
             <h2 class="mb-12 text-2xl text-center">Newest Pokemons</h2>
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {% for pokemon in pokemons %}
-                <div class="border border-4 border-teal-600"> 
+                <div class="border border-teal-600 rounded-xl overflow-hidden shadow-lg">
                     <a href="{% url 'item:detail' pokemon.id %}">
                         <div>
-                            <img src="{{ pokemon.image.url }}" class="rounded-t-xl">
+                            <img src="{{ pokemon.image.url }}" class="w-full h-48 object-cover">
                         </div>
-                        <div class="p-6 bg-white rounded-b-xl">
+                        <div class="p-6 bg-white">
                             <h2 class="text-2xl">{{ pokemon.name }}</h2>
                             <p class="text-gray-500">Price: {{ pokemon.price}}</p>
-    
                         </div>
                     </a>
                 </div>
-    
                 {% endfor %}
             </div>
         </div>
-
     </div>
-
-
 </div>
-
 {% endblock %}

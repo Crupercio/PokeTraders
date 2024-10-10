@@ -6,85 +6,56 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script src="https://cdn.tailwindcss.com"></script>
-    
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-        <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.11/dist/umd/popper.min.js"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-        <script src="https://threejs.org/examples/js/loaders/GLTFLoader.js"></script>
-        <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
-        <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
-       
 
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.11/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://threejs.org/examples/js/loaders/GLTFLoader.js"></script>
+    <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+    <script nomodule src="https://unpkg.com/@google/model-viewer/dist/model-viewer-legacy.js"></script>
 
-    
-        
-    
-        <style>
-            body { margin: 0; }
-            canvas { display: block; }
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
 
-            .carousel-container {
-    position: relative;
-    width: 100%;
-    max-width: 800px; /* Adjust as needed */
-    margin: auto;
-    overflow: hidden;
-}
+        .carousel-container { position: relative; width: 100%; max-width: 800px; margin: auto; overflow: hidden; }
+        .carousel { display: flex; transition: transform 0.5s ease-in-out; }
+        .carousel-item { display: none; flex: 1 0 100%; justify-content: center; align-items: center; height: 500px; }
+        .carousel-button { position: absolute; top: 50%; transform: translateY(-50%); background-color: rgba(255, 255, 255, 0.8); border: none; font-size: 24px; cursor: pointer; z-index: 10; }
+        .prev { left: 10px; }
+        .next { right: 10px; }
+        .model-viewer { width: 100%; height: auto; max-height: 500px; }
 
-.carousel {
-    display: flex;
-    transition: transform 0.5s ease-in-out;
-}
+            /* Ensure buttons and links are styled properly */
+            .navbar-nav .nav-link {
+            color: black;
+        }
 
-.carousel-item {
-    display: none; /* Hide all items initially */
-    flex: 1 0 100%; /* Make sure each item takes full width */
-    justify-content: center; /* Center the model viewer */
-    align-items: center; /* Center vertically */
-    height: 500px; /* Set a specific height */
-}
+        .navbar-nav .nav-link:hover {
+            color: gray;
+        }
 
-.carousel-button {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(255, 255, 255, 0.8);
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    z-index: 10; /* Ensure buttons are above other elements */
-}
-
-.prev {
-    left: 10px;
-}
-
-.next {
-    right: 10px;
-}
-
-.model-viewer {
-    width: 100%; /* Make sure the model viewer takes full width */
-    height: auto; /* Maintain aspect ratio */
-    max-height: 500px; /* Ensure it doesn't exceed this height */
-}
-
-        </style>
+        .btn {
+            margin-right: 0.5rem;
+        }
+    </style>
 
     <title>{% block title %} {% endblock %} | PokeTraders</title>
 </head>
 <body>
     {% if messages %}
-        <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
-            {% for message in messages %}
-                <p>{{ message }}</p>
-            {% endfor %}
-        </div>
+    <div class="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg" role="alert">
+        {% for message in messages %}
+        <p>{{ message }}</p>
+        {% endfor %}
+    </div>
     {% endif %}
     
-    <nav class="py-6 px-6 flex justify-between items-center border-b border-gray-200">
+    <!-- Navbar -->
+      <!-- Navbar -->
+      <nav class="py-6 px-6 flex justify-between items-center border-b border-gray-200 bg-white">
         <a href="/" class="text-xl font-semibold">PokeTraders</a>
         {% if request.user.is_authenticated %}
         <div class="flex items-center justify-center space-x-2">
@@ -93,20 +64,25 @@
         </div>
         {% endif %}
         <div class="space-x-6">
-            
-    
+        <!-- Hamburger Button for Mobile -->
+        <button class="block md:hidden focus:outline-none" id="menu-toggle">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" class="h-8 w-8">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+            </svg>
+        </button>
+
+        <!-- Menu Items -->
+        <div class="hidden md:flex md:space-x-6" id="menu-items">
             {% if request.user.is_authenticated and request.user.is_staff %}
                 <a href="{% url 'item:new' %}" class="text-lg font-semibold hover:text-gray-500">New Pokémon</a>
             {% endif %}
-            
             <a href="{% url 'item:pokemons' %}" class="text-lg font-semibold hover:text-gray-500">Browse</a>
-    
-            
+
             {% if request.user.is_authenticated %}
-            <a href="{% url 'item:claim_pokepesos' %}" class="px-6 py-3 text-lg font-semibold bg-orange-500 text-white rounded-xl hover:bg-orange-700">Claim Pokepesos</a>
-            <a href="{% url 'item:claim_pokemon' %}" class="px-6 py-3 text-lg font-semibold bg-orange-500 text-white rounded-xl hover:bg-orange-700">Claim Pokemon</a>
+                <a href="{% url 'item:claim_pokepesos' %}" class="px-6 py-3 text-lg font-semibold bg-orange-500 text-white rounded-xl hover:bg-orange-700">Claim Pokepesos</a>
+                <a href="{% url 'item:claim_pokemon' %}" class="px-6 py-3 text-lg font-semibold bg-orange-500 text-white rounded-xl hover:bg-orange-700">Claim Pokémon</a>
                 <a href="{% url 'dashboard:index' %}" class="px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Dashboard</a>
-                <form action="{% url 'core:logout' %}" method="post" style="display: inline;">
+                <form action="{% url 'core:logout' %}" method="post" class="inline-block">
                     {% csrf_token %}
                     <button type="submit" class="px-6 py-3 text-lg font-semibold bg-red-500 text-white rounded-xl hover:bg-red-700">Log out</button>
                 </form>
@@ -116,55 +92,92 @@
             {% endif %}
         </div>
     </nav>
-    
-   
 
+    <!-- Mobile Menu -->
+    <div class="hidden md:hidden" id="mobile-menu">
+        <ul class="space-y-6 mt-4">
+            {% if request.user.is_authenticated and request.user.is_staff %}
+                <li><a href="{% url 'item:new' %}" class="block text-lg font-semibold text-gray-800 hover:text-gray-500">New Pokémon</a></li>
+            {% endif %}
+            <li><a href="{% url 'item:pokemons' %}" class="block text-lg font-semibold text-gray-800 hover:text-gray-500">Browse</a></li>
+
+            {% if request.user.is_authenticated %}
+                <li><a href="{% url 'item:claim_pokepesos' %}" class="block px-6 py-3 text-lg font-semibold bg-orange-500 text-white rounded-xl hover:bg-orange-700">Claim Pokepesos</a></li>
+                <li><a href="{% url 'item:claim_pokemon' %}" class="block px-6 py-3 text-lg font-semibold bg-orange-500 text-white rounded-xl hover:bg-orange-700">Claim Pokémon</a></li>
+                <li><a href="{% url 'dashboard:index' %}" class="block px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Dashboard</a></li>
+                <li>
+                    <form action="{% url 'core:logout' %}" method="post" class="inline-block">
+                        {% csrf_token %}
+                        <button type="submit" class="block px-6 py-3 text-lg font-semibold bg-red-500 text-white rounded-xl hover:bg-red-700">Log out</button>
+                    </form>
+                </li>
+            {% else %}
+                <li><a href="{% url 'core:signup' %}" class="block px-6 py-3 text-lg font-semibold bg-teal-500 text-white rounded-xl hover:bg-teal-700">Sign up</a></li>
+                <li><a href="{% url 'core:login' %}" class="block px-6 py-3 text-lg font-semibold bg-gray-500 text-white rounded-xl hover:bg-gray-700">Log in</a></li>
+            {% endif %}
+        </ul>
+    </div>
+
+    <!-- JavaScript to handle the mobile menu toggle -->
+    <script>
+        const menuToggle = document.getElementById('menu-toggle');
+        const menuItems = document.getElementById('menu-items');
+        const mobileMenu = document.getElementById('mobile-menu');
+
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+    </script>
+
+    
+
+
+    <!-- Token Display Section -->
     <div class="px-6 py-6 pb-8">
-         <!-- Token display section with margins -->
-    {% if request.user.is_authenticated %}
-    <h3 class="text-center text-2xl text-black mb-4">Tokens</h3>
-    <div class="mt-6 px-4 md:px-6 py-12 bg-gray-100 rounded-xl">
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center text-gray-800">
-            <!-- Fire Token -->
-            <div class="flex items-center justify-center space-x-2">
-                <img src="{% static 'images/Fire_type.png' %}" alt="Fire Token" class="h-8 w-8">
-                <span>{{ request.user.userprofile.fire_tokens }}</span>
-            </div>
-            <!-- Water Token -->
-            <div class="flex items-center justify-center space-x-2">
-                <img src="{% static 'images/Water_type.png' %}" alt="Water Token" class="h-8 w-8">
-                <span>{{ request.user.userprofile.water_tokens }}</span>
-            </div>
-            <!-- Grass Token -->
-            <div class="flex items-center justify-center space-x-2">
-                <img src="{% static 'images/Grass_type.png' %}" alt="Grass Token" class="h-8 w-8">
-                <span>{{ request.user.userprofile.grass_tokens }}</span>
-            </div>
-            <!-- Electric Token -->
-            <div class="flex items-center justify-center space-x-2">
-                <img src="{% static 'images/Electric_type.png' %}" alt="Electric Token" class="h-8 w-8">
-                <span>{{ request.user.userprofile.electric_tokens }}</span>
-            </div>
-            <!-- Ice Token -->
-            <div class="flex items-center justify-center space-x-2">
-                <img src="{% static 'images/Ice_type.png' %}" alt="Ice Token" class="h-8 w-8">
-                <span>{{ request.user.userprofile.ice_tokens }}</span>
-            </div>
-            <!-- Fighting Token -->
-            <div class="flex items-center justify-center space-x-2">
-                <img src="{% static 'images/Fighting_type.png' %}" alt="Fighting Token" class="h-8 w-8">
-                <span>{{ request.user.userprofile.fighting_tokens }}</span>
-            </div>
-            <!-- Poison Token -->
-            <div class="flex items-center justify-center space-x-2">
-                <img src="{% static 'images/Poison_type.png' %}" alt="Poison Token" class="h-8 w-8">
-                <span>{{ request.user.userprofile.poison_tokens }}</span>
-            </div>
-            <!-- Ground Token -->
-            <div class="flex items-center justify-center space-x-2">
-                <img src="{% static 'images/Ground_type.png' %}" alt="Ground Token" class="h-8 w-8">
-                <span>{{ request.user.userprofile.ground_tokens }}</span>
-            </div>
+        {% if request.user.is_authenticated %}
+        <h3 class="text-center text-2xl text-black mb-4">Tokens</h3>
+        <div class="mt-6 px-4 md:px-6 py-12 bg-gray-100 rounded-xl">
+            <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 text-center text-gray-800">
+                <!-- Fire Token -->
+                <div class="flex items-center justify-center space-x-2">
+                    <img src="{% static 'images/Fire_type.png' %}" alt="Fire Token" class="h-8 w-8">
+                    <span>{{ request.user.userprofile.fire_tokens }}</span>
+                </div>
+                <!-- Water Token -->
+                <div class="flex items-center justify-center space-x-2">
+                    <img src="{% static 'images/Water_type.png' %}" alt="Water Token" class="h-8 w-8">
+                    <span>{{ request.user.userprofile.water_tokens }}</span>
+                </div>
+                <!-- Grass Token -->
+                <div class="flex items-center justify-center space-x-2">
+                    <img src="{% static 'images/Grass_type.png' %}" alt="Grass Token" class="h-8 w-8">
+                    <span>{{ request.user.userprofile.grass_tokens }}</span>
+                </div>
+                <!-- Electric Token -->
+                <div class="flex items-center justify-center space-x-2">
+                    <img src="{% static 'images/Electric_type.png' %}" alt="Electric Token" class="h-8 w-8">
+                    <span>{{ request.user.userprofile.electric_tokens }}</span>
+                </div>
+                <!-- Ice Token -->
+                <div class="flex items-center justify-center space-x-2">
+                    <img src="{% static 'images/Ice_type.png' %}" alt="Ice Token" class="h-8 w-8">
+                    <span>{{ request.user.userprofile.ice_tokens }}</span>
+                </div>
+                <!-- Fighting Token -->
+                <div class="flex items-center justify-center space-x-2">
+                    <img src="{% static 'images/Fighting_type.png' %}" alt="Fighting Token" class="h-8 w-8">
+                    <span>{{ request.user.userprofile.fighting_tokens }}</span>
+                </div>
+                <!-- Poison Token -->
+                <div class="flex items-center justify-center space-x-2">
+                    <img src="{% static 'images/Poison_type.png' %}" alt="Poison Token" class="h-8 w-8">
+                    <span>{{ request.user.userprofile.poison_tokens }}</span>
+                </div>
+                <!-- Ground Token -->
+                <div class="flex items-center justify-center space-x-2">
+                    <img src="{% static 'images/Ground_type.png' %}" alt="Ground Token" class="h-8 w-8">
+                    <span>{{ request.user.userprofile.ground_tokens }}</span>
+                </div>
             <!-- Flying Token -->
             <div class="flex items-center justify-center space-x-2">
                 <img src="{% static 'images/Flying_type.png' %}" alt="Flying Token" class="h-8 w-8">
@@ -215,21 +228,85 @@
                 <img src="{% static 'images/Normal_type.png' %}" alt="Normal Token" class="h-8 w-8">
                 <span>{{ request.user.userprofile.normal_tokens }}</span>
             </div>
-        </div>
-    
-    </div>
-    {% endif %}
-    <div>
-        <br>
-
-    </div>
-        {% block content %}
-        {% endblock %}    
-    </div>
-
-    <footer class="py-6 px-6 flex flex-col md:flex-row justify-between bg-gray-800">
-        <div class="w-full md:w-2/3 pr-10 mb-6 md:mb-0">
-            <h3 class="mb-5 font-semibold text-gray-400">About</h3>
-            <p class="text-lg text-gray-500">Add something about the project goal and</p>
-        </div>
-    </footer>
+            </div>
+            
+            </div>
+            {% endif %}
+            <div>
+                <br>
+            </div>
+            
+            {% block content %}
+            {% endblock %}    
+            </div>
+            
+            <<footer class="py-6 px-6 flex flex-col md:flex-row justify-between bg-gray-800 text-gray-400">
+                <div class="w-full md:w-2/3 pr-10 mb-6 md:mb-0">
+                    <h3 class="mb-5 font-semibold text-gray-400">About PokéTraders</h3>
+                    <div class="bg-gray-100 p-8 rounded-lg shadow-lg max-w-4xl mx-auto">
+                        <h1 class="text-3xl font-bold mb-6 text-center">PokéTraders Website Instructions</h1>
+                        
+                        <p class="mb-6 text-gray-700">Welcome to <strong>PokéTraders</strong>, the ultimate platform where you can buy, sell, and level up Pokémon to create the strongest collection. Your goal? Collect all 150 Generation 1 Pokémon, upgrade them with PokéTokens, and become the ultimate Pokémon master. Here's how to get started and succeed in PokéTraders:</p>
+                        
+                        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                            <h2 class="text-2xl font-semibold mb-4">1. Getting Started:</h2>
+                            <ul class="list-disc pl-6 text-gray-700">
+                                <li><strong>Sign Up:</strong> Create an account to access the marketplace and start your journey.</li>
+                                <li><strong>Receive Your Starter Pokémon:</strong> You will randomly receive 5 Pokémon when you sign up to kickstart your collection.</li>
+                                <li><strong>Explore the Marketplace:</strong> Browse the marketplace to buy Pokémon from other trainers or list your own Pokémon for sale.</li>
+                            </ul>
+                        </div>
+                    
+                        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                            <h2 class="text-2xl font-semibold mb-4">2. Buying & Selling Pokémon:</h2>
+                            <ul class="list-disc pl-6 text-gray-700">
+                                <li><strong>Buying:</strong> Use in-game currency to purchase Pokémon. Each Pokémon's rarity affects its price and leveling potential. The rarities are Common, Uncommon, Rare, Epic, and Ultra.</li>
+                                <li><strong>Selling:</strong> List your Pokémon for sale, set a price, and earn in-game currency or PokéTokens from successful transactions.</li>
+                            </ul>
+                        </div>
+                    
+                        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                            <h2 class="text-2xl font-semibold mb-4">3. Leveling Up Pokémon:</h2>
+                            <ul class="list-disc pl-6 text-gray-700">
+                                <li><strong>Battle & Train:</strong> Earn experience by participating in battles to level up your Pokémon.</li>
+                                <li><strong>Use PokéTokens:</strong> Upgrade your Pokémon using tokens of their respective type (Fire, Water, Grass, etc.).</li>
+                                <li><strong>Level Caps:</strong> Each rarity has a maximum level: Common (Level 20), Uncommon (Level 40), Rare (Level 60), Epic (Level 80), Ultra (Level 100).</li>
+                            </ul>
+                        </div>
+                    
+                        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                            <h2 class="text-2xl font-semibold mb-4">4. Freeing Pokémon for Tokens:</h2>
+                            <ul class="list-disc pl-6 text-gray-700">
+                                <li><strong>Release Pokémon:</strong> Get PokéTokens by releasing Pokémon back into the wild.</li>
+                                <li><strong>Token Rewards:</strong> The tokens you receive depend on the Pokémon’s type. For example, releasing a Fire-type Pokémon rewards Fire PokéTokens.</li>
+                                <li><strong>Use Tokens for Upgrades:</strong> Use the collected tokens to upgrade your Pokémon’s rarity.</li>
+                            </ul>
+                        </div>
+                    
+                        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                            <h2 class="text-2xl font-semibold mb-4">5. No Direct Trading:</h2>
+                            <ul class="list-disc pl-6 text-gray-700">
+                                <li><strong>No Direct Trades:</strong> You cannot trade Pokémon directly with other players. You can only sell them in the marketplace for in-game currency or tokens, and anyone can buy them.</li>
+                            </ul>
+                        </div>
+                    
+                        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                            <h2 class="text-2xl font-semibold mb-4">6. Objective:</h2>
+                            <ul class="list-disc pl-6 text-gray-700">
+                                <li><strong>Complete the Collection:</strong> Your goal is to collect all 150 Generation 1 Pokémon through buying, evolving, and catching them.</li>
+                                <li><strong>Become the Master:</strong> Level up all your Pokémon to their maximum levels and prove yourself as the strongest trainer on PokéTraders.</li>
+                            </ul>
+                        </div>
+                    
+                        <div class="bg-white p-6 rounded-lg shadow-md mb-6">
+                            <h2 class="text-2xl font-semibold mb-4">7. Additional Features:</h2>
+                            <ul class="list-disc pl-6 text-gray-700">
+                                <li><strong>Leaderboard:</strong> Track your progress and compare your collection with others.</li>
+                                <li><strong>Events:</strong> Join events to win rare Pokémon or earn extra PokéTokens.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </footer>
+</body>
+</html>

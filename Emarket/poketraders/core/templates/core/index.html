@@ -3,47 +3,22 @@
 {% load static %}
 {% block title %} Welcome {% endblock %}
 
-{%block content %}
-<!--{% if request.user.is_authenticated and request.user.is_staff %}
-<div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
-    <h2 class="mb-12 text-2xl text-center">Original Pokemons</h2>
-    <div class="grid grid-cols-5 gap-3">
-        {% for pokemon in pokemons_original %}
-        <div class="border border-4 border-teal-600"> 
-            <a href="{% url 'item:detail_original' pokemon.id %}">
-            
-                <div>
-                    <img src="{{ pokemon.image.url }}" class="rounded-t-xl">
-                </div>
-                <div class="p-6 bg-white rounded-b-xl">
-                    <h2 class="text-2xl">{{ pokemon.name }}</h2>
-                    <p class="text-gray-500">Price: {{ pokemon.price}}</p>
-
-                </div>
-            </a>
-            
-        </div>
-
-        {% endfor %}
-    </div>
-</div>
-{% endif %}-->
-<div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl relative z-0">
+{% block content %}
+<div class="mt-6 px-4 py-12 bg-gray-100 rounded-xl relative z-0">
     <h2 class="mb-12 text-2xl text-center">Newest Pokémons</h2>
 
     <div id="pokemonCarousel" class="carousel slide" data-ride="carousel" data-interval="3000">
         <div class="carousel-inner">
             {% for pokemon in pokemons %}
             <div class="carousel-item {% if forloop.first %}active{% endif %}" data-pokemon-id="{{ pokemon.id }}">
-                <div class="text-center"> 
+                <div class="text-center">
                     <a href="{% url 'item:detail' pokemon.id %}" class="no-underline hover:no-underline">
-                       <img src="{{ pokemon.image.url }}" class="d-block mx-auto rounded hover:scale-110 transition-transform duration-300 relative z-20 hover:z-30" style="width: 25%; height: auto;" alt="{{ pokemon.name }}">
+                       <img src="{{ pokemon.image.url }}" class="d-block mx-auto rounded hover:scale-110 transition-transform duration-300 relative z-20 hover:z-30 w-full md:w-1/3" alt="{{ pokemon.name }}">
                         
-                        <div class="p-4 bg-teal-500 text-white rounded-xl mt-6 w-1/6 mx-auto">
+                        <div class="p-4 bg-teal-500 text-white rounded-xl mt-6 w-full md:w-1/3 mx-auto">
                             <h2 class="text-2xl font-bold">{{ pokemon.name }}</h2>
                             <p class="text-xl font-bold">Price: {{ pokemon.price }}</p>
                         </div>
-                       
                     </a>
                 </div>
             </div>
@@ -64,131 +39,73 @@
     </div>
 </div>
 
+<div class="mt-6 px-4 py-12 bg-gray-100 rounded-xl">
+    <h2 class="mb-12 text-2xl text-center">Sale Pokemons</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        {% for pokemon in pokemons %}
+        <div class="border border-4 border-teal-600"> 
+            <a href="{% url 'item:detail' pokemon.id %}">
+                <div>
+                    <img src="{{ pokemon.image.url }}" class="rounded-t-xl w-full h-auto">
+                </div>
+                <div class="p-6 bg-white rounded-b-xl">
+                    <h2 class="text-2xl">{{ pokemon.name }}</h2>
+                    <p class="text-gray-500">Price: {{ pokemon.price}}</p>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="mt-6 px-4 py-12 bg-gray-100 rounded-xl">
+    <h2 class="mb-12 text-2xl text-center">Types</h2>
+    <div class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-3">
+        {% for type in types %}
+        <div class="text-center">
+            <h3 class="text-2xl font-semibold text-teal-700 mb-2 flex justify-center items-center space-x-2">
+                <!-- Pokemon Type Name -->
+                <span>{{ type.name }}</span>
+                <!-- Count Display -->
+                <span class="text-lg text-gray-600">({{ type.user_pokemons.count }})</span>
+            </h3>
+            <a href="#">
+                <div class="p-6 rounded-xl border-4 bg-cover bg-center flex items-center justify-center"
+                     style="background-image: url('{% static 'images/' %}{{ type.name }}_type.png'); border-color: #008080; height: 150px;">
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
 
 <script>
-    // Get all carousel items and the image elements
     const carouselItems = document.querySelectorAll('.carousel-item');
     const prevImage = document.getElementById('prev-image');
     const nextImage = document.getElementById('next-image');
 
-    // Function to update the images for the next and previous Pokémon
     function updateCarouselImages() {
         const activeItem = document.querySelector('.carousel-item.active');
         const activeIndex = Array.from(carouselItems).indexOf(activeItem);
 
-        // Set previous image (grayed out)
         if (activeIndex > 0) {
             prevImage.src = carouselItems[activeIndex - 1].querySelector('img').src;
         } else {
-            prevImage.src = carouselItems[carouselItems.length - 1].querySelector('img').src; // Loop back to last
+            prevImage.src = carouselItems[carouselItems.length - 1].querySelector('img').src;
         }
 
-        // Set next image (always fully highlighted)
         if (activeIndex < carouselItems.length - 1) {
             nextImage.src = carouselItems[activeIndex + 1].querySelector('img').src;
         } else {
-            nextImage.src = carouselItems[0].querySelector('img').src; // Loop back to first
+            nextImage.src = carouselItems[0].querySelector('img').src;
         }
     }
 
-    // Update images initially
     updateCarouselImages();
 
-    // Update images when the carousel slides
     $('#pokemonCarousel').on('slid.bs.carousel', function () {
         updateCarouselImages();
     });
 </script>
-
-
-
-<!--Testing 3d objects
-<div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
-    <h2 class="mb-12 text-2xl text-center">3D Models</h2>
-    <div style="display: flex; justify-content: space-between; flex-wrap: wrap;">
-        <div style="width: 30%; margin-bottom: 20px;">
-            <div class="border border-gray-300 rounded-xl shadow-lg overflow-hidden">
-                <model-viewer 
-                    src="{% static 'models/Tsuyu_Asui/Tsuyu_Asui.gltf' %}" 
-                    alt="A 3D model of Tsuyu Asui" 
-                    shadow-intensity="1" 
-                    camera-controls 
-                    auto-rotate 
-                    ar 
-                    style="width: 100%; height: 300px;">
-                </model-viewer>
-                <div class="p-4 bg-white">
-                    <h3 class="text-xl font-bold">Tsuyu Asui</h3>
-                    <p class="text-gray-500">Price: $30.00</p>
-                </div>
-            </div>
-        </div>
-
-        <div style="width: 30%; margin-bottom: 20px;">
-            <div class="border border-gray-300 rounded-xl shadow-lg overflow-hidden">
-                <model-viewer 
-                    src="{% static 'models/Deadpool/deadpool.gltf' %}" 
-                    alt="A 3D model of Deadpool" 
-                    shadow-intensity="1" 
-                    camera-controls 
-                    auto-rotate 
-                    ar 
-                    style="width: 100%; height: 300px;">
-                </model-viewer>
-                <div class="p-4 bg-white">
-                    <h3 class="text-xl font-bold">Deadpool</h3>
-                    <p class="text-gray-500">Price: $40.00</p>
-                </div>
-            </div>
-        </div>
-
-        <div style="width: 30%; margin-bottom: 20px;">
-            <div class="border border-gray-300 rounded-xl shadow-lg overflow-hidden">
-                <model-viewer 
-                    src="{% static 'models/Shoto_Todoroki/shoto_todoroki.gltf' %}" 
-                    alt="A 3D model of Shoto Todoroki" 
-                    shadow-intensity="1" 
-                    camera-controls 
-                    auto-rotate 
-                    ar 
-                    style="width: 100%; height: 300px;">
-                </model-viewer>
-                <div class="p-4 bg-white">
-                    <h3 class="text-xl font-bold">Shoto Todoroki</h3>
-                    <p class="text-gray-500">Price: $35.00</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-    
-    Testing 3d objects--> 
-    <div class="mt-6 px-6 py-12 bg-gray-100 rounded-xl">
-        <h2 class="mb-12 text-2xl text-center">Types</h2>
-        <div class="grid grid-cols-6 gap-3">
-            {% for type in types %}
-            <div>
-                <!-- Type Name Centered -->
-                <h3 class="text-center text-2xl font-semibold text-teal-700 mb-4">{{ type.name }}</h3>
-                <a href="#">
-                    <div class="p-6 rounded-xl border-4 flex items-center justify-between"
-                         style="
-                            background-image: url('{% static 'images/' %}{{ type.name }}_type.png');
-                            background-size: contain;
-                            background-position: left;
-                            background-repeat: no-repeat;
-                            border-color: #008080;">
-                        <!-- Number of Pokémons in Black -->
-                        <div class="text-3xl text-black ml-auto">
-                            {{ type.user_pokemons.count }}
-                        </div>
-                    </div>
-                </a>
-            </div>
-            {% endfor %}
-        </div>
-    </div>
-    
-    
-    
 {% endblock %}

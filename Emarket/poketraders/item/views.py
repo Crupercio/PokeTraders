@@ -318,8 +318,7 @@ def award_experience(user_profile, amount):
     """Award experience points to a user profile."""
     user_profile.add_experience(amount)
 
-@login_required    
-@login_required    
+  
 @login_required    
 def upgrade_rarity(request, pk):
     pokemon = get_object_or_404(PokemonOfUser, pk=pk)

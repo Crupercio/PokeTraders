@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404
 import random
 from django.shortcuts import render, redirect
 from .models import UserProfile
-
+from django import template
 from item.models import Pokemon, Type, PokemonOfUser
 
 from .forms import SignupForm
@@ -11,8 +11,8 @@ from .forms import SignupForm
 # Create your views here.
 
 def index(request):
-    pokemons = PokemonOfUser.objects.filter(is_tradeable=True)[:150]
-    pokemons_original = Pokemon.objects.filter()[:150]
+    pokemons = PokemonOfUser.objects.filter(is_tradeable=True)[:300]
+    pokemons_original = Pokemon.objects.filter()[:300]
     types = Type.objects.prefetch_related('user_pokemons').all()
 
     return render(request, 'core/index.html', {
@@ -23,6 +23,13 @@ def index(request):
 
 def contact(request):
     return render(request, 'core/contact.html')
+
+
+register = template.Library()
+
+@register.filter(name='add_class')
+def add_class(field, css_class):
+    return field.as_widget(attrs={"class": css_class})
 
 def signup(request):
     if request.method == 'POST':
